@@ -38,13 +38,13 @@ public class LoginController {
 		
 		if(usr != null) {
 			//Note - the no args getSession method will create a new session if one does not already exist for this client. 
-			System.out.println("LoginController SESSION: setting user, loggedin and acctType");
+			System.out.println("LoginController SESSION: setting user, loggedin and userType");
 			HttpSession ses = req.getSession();
 
 			ses.setAttribute("user", l);
 			ses.setAttribute("userID", usr.getUserId());
 			ses.setAttribute("loggedin", true);
-			ses.setAttribute("acctType", usr.getRole().getRole());  // Getting the string form for Role eg. Admin,
+			ses.setAttribute("userType", usr.getRole().getRole());  // Getting the string form for Role eg. Admin,
 
 			res.setStatus(200);
 			//res.getWriter().println(((LoginDTO) sess.getAttribute("user")).username + " Login Successful!");
@@ -70,7 +70,7 @@ public class LoginController {
 			System.out.println("logout SESSION user     = "+((LoginDTO) ses.getAttribute("user")).username);
 			System.out.println("logout SESSION userID   = "+ses.getAttribute("userID"));
 			System.out.println("logout SESSION loggedin = "+ses.getAttribute("loggedin"));
-			System.out.println("logout SESSION acctType = "+ses.getAttribute("acctType"));
+			System.out.println("logout SESSION userType = "+ses.getAttribute("userType"));
 			LoginDTO l = (LoginDTO) ses.getAttribute("user");
 			System.out.println("logout and invalidate session" + l.username);
 			ses.invalidate();

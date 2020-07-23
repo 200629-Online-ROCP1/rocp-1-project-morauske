@@ -1,9 +1,7 @@
 package com.revature.web;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -13,8 +11,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.revature.controllers.AccountController;
 import com.revature.controllers.LoginController;
 import com.revature.controllers.UserController;
+import com.revature.models.AccountDTO;
 import com.revature.models.User;
 
 public class MasterServlet extends HttpServlet {
@@ -22,6 +22,7 @@ public class MasterServlet extends HttpServlet {
 	private static final ObjectMapper om = new ObjectMapper();
 	private static final LoginController lc = new LoginController();
 	private static final UserController uc = new UserController();
+	private static final AccountController ac = new AccountController();
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -44,6 +45,22 @@ public class MasterServlet extends HttpServlet {
 		// this will set the default response to not found; we will change it later if
 		// the request was successful
 		res.setStatus(404);
+
+		Boolean loggedIn = false; // default to not logged in
+		int usrID = 0; // default to no real user
+
+		String userType = ""; // Default to nothing
+
+		HttpSession ses = req.getSession(false); // false - doesn't create session if it doesn't already exist
+		if (ses != null) {
+			loggedIn = (Boolean) ses.getAttribute("loggedin");
+			System.out.println("SESSION Att Names:" + ses.getAttributeNames());
+			System.out.println("current usrID " + ses.getAttribute("userID"));
+			usrID = (int) ses.getAttribute("userID");
+			userType = (String) ses.getAttribute("userType");
+
+		}
+
 		System.out.println(req.getRequestURI());
 
 		final String URI = req.getRequestURI().replace("/rocp-project/", "");
@@ -59,6 +76,25 @@ public class MasterServlet extends HttpServlet {
 
 			case "logout":
 				lc.logout(req, res);
+				break;
+
+			case "register":
+				// if (!loggedIn ) {
+				if (!loggedIn || !(userType.equals("Admin"))) {
+					res.setStatus(400);
+					res.getWriter().println("Register requires an Admin to be logged into the session");
+					return;
+				}
+				uc.register(req, res);
+				// Status code for pass or fail in UserController
+				break;
+			case "accounts":
+				if (!loggedIn) {
+					res.setStatus(400);
+					res.getWriter().println("Creating an account requires an existing session");
+					return;
+				}
+				ac.addAccount(req, res);
 				break;
 			}
 
@@ -78,7 +114,71 @@ public class MasterServlet extends HttpServlet {
 		// has been committed
 
 		System.out.println("doPut: Method requested was " + req.getMethod());
-		httpReqGetHandler(req, res); // TODO change to a PUT handler
+		res.setContentType("application/json");
+		// this will set the default response to not found; we will change it later if
+		// the request was successful
+		res.setStatus(404);
+
+		Boolean loggedIn = false; // default to not logged in
+		int usrID = 0; // default to no real user
+
+		String userType = ""; // Default to nothing
+
+		HttpSession ses = req.getSession(false); // false - doesn't create session if it doesn't already exist
+		if (ses != null) {
+			loggedIn = (Boolean) ses.getAttribute("loggedin");
+			System.out.println("current usrID " + ses.getAttribute("userID"));
+			usrID = (int) ses.getAttribute("userID");
+			userType = (String) ses.getAttribute("userType");
+
+		}else {
+			// All PUT request require a valid login
+			res.setStatus(400);
+			res.getWriter().println("There was no user logged into the session");
+			return;
+		}
+		System.out.println(req.getRequestURI());
+
+		final String URI = req.getRequestURI().replace("/rocp-project/", "");
+
+		String[] portions = URI.split("/");
+
+		System.out.println(Arrays.toString(portions));
+		try {
+			switch (portions[0]) {
+			case "accounts":
+				if (portions.length == 1) {
+					if (ses.getAttribute("userType").equals("Admin")) {
+						// '/users' has a length of 1
+						AccountDTO acct = ac.update(req,res);
+						if (acct != null) {
+
+						res.setStatus(200);
+						res.getWriter().println(om.writeValueAsString(acct));
+						}else {
+						res.setStatus(400);
+						res.getWriter().println("Invalid fields");
+						}
+						return;
+					} else {
+						res.setStatus(401);
+						res.getWriter().println("The requested action is not permitted");
+						return;
+					}
+				}else {
+					res.setStatus(401);
+					res.getWriter().println("The requested action is not permitted: Extra on URI");
+					return;
+	
+				}
+			}
+
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			res.getWriter().println("httpReqGetHandler exception");
+			res.setStatus(400);
+		}
+
 	}
 
 	private void httpReqGetHandler(HttpServletRequest req, HttpServletResponse res)
@@ -114,8 +214,9 @@ public class MasterServlet extends HttpServlet {
 			case "users":
 				// Find Users By Id
 				if (portions.length == 1) {
-					System.out.println("users::acctType"+ses.getAttribute("acctType"));
-					if ( (ses.getAttribute("acctType").equals("Admin")) || (ses.getAttribute("acctType").equals("Employee")) ) {
+					System.out.println("users::acctType" + ses.getAttribute("acctType"));
+					if ((ses.getAttribute("acctType").equals("Admin"))
+							|| (ses.getAttribute("acctType").equals("Employee"))) {
 						// '/users' has a length of 1
 						List<User> all = uc.findAll(); // uc user controller
 
@@ -131,20 +232,19 @@ public class MasterServlet extends HttpServlet {
 					if (portions.length == 2) {
 						// '/users/#' where # is the user's ID
 						// Restricted to Admin/Employee or user with id requested.
-						if ((usrID == Integer.parseInt(portions[1])) ||  
-								( (ses.getAttribute("acctType").equals("Admin")) || (ses.getAttribute("acctType").equals("Employee")) )){
+						if ((usrID == Integer.parseInt(portions[1])) || ((ses.getAttribute("acctType").equals("Admin"))
+								|| (ses.getAttribute("acctType").equals("Employee")))) {
 							User usr = uc.findById(Integer.parseInt(portions[1]));
 							if (usr != null) {
 
-							res.setStatus(213);
-							res.getWriter().println(om.writeValueAsString(usr));
+								res.setStatus(213);
+								res.getWriter().println(om.writeValueAsString(usr));
 							} else {
 								res.setStatus(400);
-								res.getWriter().println("Invalid field");						
+								res.getWriter().println("Invalid field");
 							}
 							return;
-						}else
-						{
+						} else {
 							res.setStatus(401);
 							res.getWriter().println("The requested action is not permitted");
 							return;
