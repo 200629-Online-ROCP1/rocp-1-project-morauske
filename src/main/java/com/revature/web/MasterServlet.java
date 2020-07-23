@@ -58,7 +58,7 @@ public class MasterServlet extends HttpServlet {
 			System.out.println("current usrID " + ses.getAttribute("userID"));
 			usrID = (int) ses.getAttribute("userID");
 			userType = (String) ses.getAttribute("userType");
-			System.out.println("userType"+userType);
+			System.out.println("userType" + userType);
 
 		}
 
@@ -133,7 +133,7 @@ public class MasterServlet extends HttpServlet {
 			usrID = (int) ses.getAttribute("userID");
 			userType = (String) ses.getAttribute("userType");
 
-		}else {
+		} else {
 			// All PUT request require a valid login
 			res.setStatus(400);
 			res.getWriter().println("There was no user logged into the session");
@@ -152,14 +152,14 @@ public class MasterServlet extends HttpServlet {
 				if (portions.length == 1) {
 					if (ses.getAttribute("userType").equals("Admin")) {
 						// '/users' has a length of 1
-						AccountDTO acct = ac.update(req,res);
+						AccountDTO acct = ac.update(req, res);
 						if (acct != null) {
 
-						res.setStatus(200);
-						res.getWriter().println(om.writeValueAsString(acct));
-						}else {
-						res.setStatus(400);
-						res.getWriter().println("Invalid fields");
+							res.setStatus(200);
+							res.getWriter().println(om.writeValueAsString(acct));
+						} else {
+							res.setStatus(400);
+							res.getWriter().println("Invalid fields");
 						}
 						return;
 					} else {
@@ -167,11 +167,11 @@ public class MasterServlet extends HttpServlet {
 						res.getWriter().println("The requested action is not permitted");
 						return;
 					}
-				}else {
+				} else {
 					res.setStatus(401);
 					res.getWriter().println("The requested action is not permitted: Extra on URI");
 					return;
-	
+
 				}
 			}
 
@@ -185,40 +185,33 @@ public class MasterServlet extends HttpServlet {
 
 	private void httpReqGetHandler(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
-		res.setContentType("application/json");
-		// this will set the default response to not found; we will change it later if
-		// the request was successful
-		res.setStatus(404);
-		Boolean loggedIn = false; // default to not logged in
-		int usrID = 0; // default to no real user
-		HttpSession ses = req.getSession(false); // false - doesn't create session if it doesn't already exist
-		if (ses != null) {
-			loggedIn = (Boolean) ses.getAttribute("loggedin");
-			System.out.println("SESSION Att Names:" + ses.getAttributeNames());
-			System.out.println("current usrID " + ses.getAttribute("userID"));
-			usrID = (int) ses.getAttribute("userID");
 
-		} else {
+		res.setContentType("application/json");
+		// Not Found is the default response status. Until it is reset.
+		res.setStatus(404);
+		HttpSession ses = req.getSession(false); // false - doesn't create session if it doesn't already exist
+		if (ses == null) {
 			// All GET request require a valid login
 			res.setStatus(400);
 			res.getWriter().println("There was no user logged into the session");
 			return;
 		}
-		System.out.println(req.getRequestURI());
+		System.out.println("SESSION usrID " + ses.getAttribute("userID"));
+		int usrID = (int) ses.getAttribute("userID");
 
+		// System.out.println(req.getRequestURI());
 		final String URI = req.getRequestURI().replace("/rocp-project/", "");
-
 		String[] portions = URI.split("/");
-
 		System.out.println(Arrays.toString(portions));
+
 		try {
+			Boolean adminOrEmployee = ((ses.getAttribute("userType").equals("Admin"))
+					|| (ses.getAttribute("userType").equals("Employee")));
+			System.out.println("GET request adminOrEmployee:" + adminOrEmployee);
 			switch (portions[0]) {
 			case "users":
-				// Find Users By Id
-				if (portions.length == 1) {
-					System.out.println("users::userType" + ses.getAttribute("userType"));
-					if ((ses.getAttribute("userType").equals("Admin"))
-							|| (ses.getAttribute("userType").equals("Employee"))) {
+				if (portions.length == 1) { // Find All Users
+					if (adminOrEmployee) {
 						// '/users' has a length of 1
 						List<User> all = uc.findAll(); // uc user controller
 
@@ -230,12 +223,11 @@ public class MasterServlet extends HttpServlet {
 						res.getWriter().println("The requested action is not permitted");
 						return;
 					}
-				} else {
+				} else { // Find Users by id
 					if (portions.length == 2) {
 						// '/users/#' where # is the user's ID
 						// Restricted to Admin/Employee or user with id requested.
-						if ((usrID == Integer.parseInt(portions[1])) || ((ses.getAttribute("userType").equals("Admin"))
-								|| (ses.getAttribute("userType").equals("Employee")))) {
+						if ((usrID == Integer.parseInt(portions[1])) || adminOrEmployee) {
 							User usr = uc.findById(Integer.parseInt(portions[1]));
 							if (usr != null) {
 
