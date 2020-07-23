@@ -58,6 +58,7 @@ public class MasterServlet extends HttpServlet {
 			System.out.println("current usrID " + ses.getAttribute("userID"));
 			usrID = (int) ses.getAttribute("userID");
 			userType = (String) ses.getAttribute("userType");
+			System.out.println("userType"+userType);
 
 		}
 
@@ -81,6 +82,7 @@ public class MasterServlet extends HttpServlet {
 			case "register":
 				// if (!loggedIn ) {
 				if (!loggedIn || !(userType.equals("Admin"))) {
+					System.out.println("MS register");
 					res.setStatus(400);
 					res.getWriter().println("Register requires an Admin to be logged into the session");
 					return;
