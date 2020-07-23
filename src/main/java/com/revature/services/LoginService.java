@@ -1,4 +1,4 @@
-package com.revature.controllers;
+package com.revature.services;
 
 import com.revature.models.LoginDTO;
 import com.revature.models.User;

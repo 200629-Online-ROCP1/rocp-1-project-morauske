@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.revature.models.LoginDTO;
 import com.revature.models.User;
 import com.revature.models.UserDTO;
+import com.revature.services.UserService;
 
 
 public class UserController {
