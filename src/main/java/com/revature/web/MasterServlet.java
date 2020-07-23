@@ -214,9 +214,9 @@ public class MasterServlet extends HttpServlet {
 			case "users":
 				// Find Users By Id
 				if (portions.length == 1) {
-					System.out.println("users::acctType" + ses.getAttribute("acctType"));
-					if ((ses.getAttribute("acctType").equals("Admin"))
-							|| (ses.getAttribute("acctType").equals("Employee"))) {
+					System.out.println("users::userType" + ses.getAttribute("userType"));
+					if ((ses.getAttribute("userType").equals("Admin"))
+							|| (ses.getAttribute("userType").equals("Employee"))) {
 						// '/users' has a length of 1
 						List<User> all = uc.findAll(); // uc user controller
 
@@ -232,8 +232,8 @@ public class MasterServlet extends HttpServlet {
 					if (portions.length == 2) {
 						// '/users/#' where # is the user's ID
 						// Restricted to Admin/Employee or user with id requested.
-						if ((usrID == Integer.parseInt(portions[1])) || ((ses.getAttribute("acctType").equals("Admin"))
-								|| (ses.getAttribute("acctType").equals("Employee")))) {
+						if ((usrID == Integer.parseInt(portions[1])) || ((ses.getAttribute("userType").equals("Admin"))
+								|| (ses.getAttribute("userType").equals("Employee")))) {
 							User usr = uc.findById(Integer.parseInt(portions[1]));
 							if (usr != null) {
 
