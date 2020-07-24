@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.revature.controllers.AccountController;
 import com.revature.controllers.LoginController;
 import com.revature.controllers.UserController;
+import com.revature.models.Account;
 import com.revature.models.AccountDTO;
 import com.revature.models.User;
 
@@ -248,6 +249,17 @@ public class MasterServlet extends HttpServlet {
 				res.setStatus(401);
 				res.getWriter().println("The requested action is not permitted");
 				return;
+			case "accounts": // accounts, accounts/:id, accounts/status/:statusId, accounts/owner/:ownerId
+				if ((portions.length == 1) && (adminOrEmployee)) {
+					// Find Accounts [] 
+					List<Account> all = ac.findAll();
+					
+					res.setStatus(200);
+					res.getWriter().println(om.writeValueAsString(all));
+					return;
+				}
+				System.out.println("Length of portions"+portions.length);
+				break;
 			}
 
 		} catch (NumberFormatException e) {

@@ -5,7 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.revature.models.Account;
 import com.revature.models.AccountDTO;
 import com.revature.util.ConnectionUtil;
 
@@ -94,6 +97,38 @@ public class AccountDAO implements IAccountDAO {
 			} else {
 				return null;
 			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public List<Account> findAll() {
+		try (Connection conn = ConnectionUtil.getConnection()) {
+			// create DB select statement for users with roles added
+			// No user can have a NULL role
+			String sql = "SELECT * FROM accounts JOIN users ON accounts.owner_user_id = users.user_id;";
+
+			Statement statement = conn.createStatement();
+
+			List<Account> list = new ArrayList<>();
+
+			ResultSet result = statement.executeQuery(sql);
+
+			while (result.next()) {
+				Account act = new Account();
+				act.setAccountId(result.getInt("account_id"));
+				act.setOwnerUserId(result.getInt("owner_user_id"));
+				act.setBalance(result.getDouble("balance"));
+				act.setStatus(result.getString("status"));
+				act.setType(result.getString("acct_type"));
+
+				list.add(act);
+			}
+
+			return list;
 
 		} catch (SQLException e) {
 			e.printStackTrace();

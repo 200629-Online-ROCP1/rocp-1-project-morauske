@@ -1,5 +1,8 @@
 package com.revature.services;
 
+import java.util.List;
+
+import com.revature.models.Account;
 import com.revature.models.AccountDTO;
 import com.revature.repos.AccountDAO;
 import com.revature.repos.IAccountDAO;
@@ -35,6 +38,9 @@ public class AccountService {
 			System.out.println("Service update account failed to update");
 			return null;
 		}
+	}
+	public List<Account> findAll() {
+		return dao.findAll();
 	}
 
 }

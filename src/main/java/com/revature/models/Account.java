@@ -4,8 +4,8 @@ public class Account {
 	private int accountId; //primary Key
 	private int ownerUserId; // Foreign Key to account owner
 	private double balance; // Not Null
-	private AccountStatus status; // 
-	private AccountType type; //
+	private String status; // 
+	private String type; //
 	public int getAccountId() {
 		return accountId;
 	}
@@ -18,16 +18,16 @@ public class Account {
 	public void setBalance(double balance) {
 		this.balance = balance;
 	}
-	public AccountStatus getStatus() {
+	public String getStatus() {
 		return status;
 	}
-	public void setStatus(AccountStatus status) {
+	public void setStatus(String status) {
 		this.status = status;
 	}
-	public AccountType getType() {
+	public String getType() {
 		return type;
 	}
-	public void setType(AccountType type) {
+	public void setType(String type) {
 		this.type = type;
 	}
 	public int getOwnerUserId() {

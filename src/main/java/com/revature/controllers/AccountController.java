@@ -2,12 +2,14 @@ package com.revature.controllers;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.revature.models.Account;
 import com.revature.models.AccountDTO;
 import com.revature.services.AccountService;
 
@@ -86,6 +88,11 @@ public class AccountController {
 			// failed to create new user
 			return null;
 		}
+	}
+
+	public List<Account> findAll() {
+		// TODO Auto-generated method stub
+		return as.findAll();
 	}
 
 }
