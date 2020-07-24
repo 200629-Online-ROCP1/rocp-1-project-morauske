@@ -95,4 +95,9 @@ public class AccountController {
 		return as.findAll();
 	}
 
+	public Account findById(int id) {
+
+		return as.findById(id);
+	}
+
 }

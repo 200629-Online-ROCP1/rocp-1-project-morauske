@@ -135,4 +135,36 @@ public class AccountDAO implements IAccountDAO {
 		}
 		return null;
 	}
+
+	@Override
+	public Account findById(int id) {
+		try (Connection conn = ConnectionUtil.getConnection()) {
+			// create DB select statement for users with roles added
+			// No user can have a NULL role
+			String sql = "SELECT * FROM accounts WHERE owner_user_id = "+id+";";
+
+			Statement statement = conn.createStatement();
+			ResultSet result = statement.executeQuery(sql);
+
+			System.out.println("aaa");
+			if (result.next()) {
+				System.out.println("bbb");
+				Account act = new Account();
+				act.setAccountId(result.getInt("account_id"));
+				act.setOwnerUserId(result.getInt("owner_user_id"));
+				act.setBalance(result.getDouble("balance"));
+				act.setStatus(result.getString("status"));
+				act.setType(result.getString("acct_type"));
+				System.out.println("kdkdkddk");
+				return act;
+			}else {
+				System.out.println("ccc");
+
+				return null;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

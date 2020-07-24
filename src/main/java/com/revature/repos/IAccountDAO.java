@@ -12,4 +12,6 @@ public interface IAccountDAO {
 	public AccountDTO updateAccount(AccountDTO a);
 
 	public List<Account> findAll();
+
+	public Account findById(int id);
 }

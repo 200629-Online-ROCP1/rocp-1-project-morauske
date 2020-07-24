@@ -42,5 +42,9 @@ public class AccountService {
 	public List<Account> findAll() {
 		return dao.findAll();
 	}
+	public Account findById(int id) {
+
+		return dao.findById(id);
+	}
 
 }

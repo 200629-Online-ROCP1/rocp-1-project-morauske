@@ -251,14 +251,27 @@ public class MasterServlet extends HttpServlet {
 				return;
 			case "accounts": // accounts, accounts/:id, accounts/status/:statusId, accounts/owner/:ownerId
 				if ((portions.length == 1) && (adminOrEmployee)) {
-					// Find Accounts [] 
+					// Find Accounts []
 					List<Account> all = ac.findAll();
-					
+
 					res.setStatus(200);
 					res.getWriter().println(om.writeValueAsString(all));
 					return;
+				} else if (portions.length == 2) {
+					// accounts/:id
+					if ((usrID == Integer.parseInt(portions[1])) || adminOrEmployee) {
+						Account single = ac.findById(Integer.parseInt(portions[1]));
+						res.setStatus(200);
+						res.getWriter().println(om.writeValueAsString(single));
+						return;
+					} else {
+						// Non adminOrEmployee attempting to get info on someone else
+						res.setStatus(401);
+						res.getWriter().println("The requested action is not permitted");
+						return;
+					}
 				}
-				System.out.println("Length of portions"+portions.length);
+				System.out.println("Length of portions" + portions.length);
 				break;
 			}
 
