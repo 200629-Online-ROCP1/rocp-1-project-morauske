@@ -259,17 +259,57 @@ public class MasterServlet extends HttpServlet {
 					return;
 				} else if (portions.length == 2) {
 					// accounts/:id
-					if ((usrID == Integer.parseInt(portions[1])) || adminOrEmployee) {
-						Account single = ac.findById(Integer.parseInt(portions[1]));
-						res.setStatus(200);
-						res.getWriter().println(om.writeValueAsString(single));
-						return;
+					// for accounts by account_id we get the account then check to see
+					// if the permissions allow for it to be returned in the request.
+					Account act = ac.findById(Integer.parseInt(portions[1]));
+
+					if (act != null) {
+						if (adminOrEmployee) {
+							res.setStatus(200);
+							res.getWriter().println(om.writeValueAsString(act));
+							return;
+						} else {
+							if (usrID == act.getOwnerUserId()) {
+								// Valid request with Account to return
+								res.setStatus(200);
+								res.getWriter().println(om.writeValueAsString(act));
+								return;
+							} else {
+								// Request was not valid User requested account of another user
+								res.setStatus(400);
+								res.getWriter().println("Invalid fields");
+								return;
+							}
+						}
 					} else {
-						// Non adminOrEmployee attempting to get info on someone else
-						res.setStatus(401);
-						res.getWriter().println("The requested action is not permitted");
-						return;
+						// Requested account was not found
+						res.setStatus(404);
+						res.getWriter().println("Account Not Found");
 					}
+
+				} else if (portions.length == 3) {
+					// checking for accounts status or owner request
+					switch (portions[1]) {
+					case "status":
+						if (adminOrEmployee) {
+							List<Account> act = ac.findAcctByStatusId(Integer.parseInt(portions[2]));
+							res.setStatus(200);
+							res.getWriter().println(om.writeValueAsString(act));
+							return;
+						}
+						break;
+					case "owner":
+						if ((usrID == Integer.parseInt(portions[2])) || adminOrEmployee) {
+							List<Account> act = ac.findAcctByUserId(Integer.parseInt(portions[2]));
+							res.setStatus(200);
+							res.getWriter().println(om.writeValueAsString(act));
+							return;
+						}
+					}
+					// action is not permitted.
+					res.setStatus(401);
+					res.getWriter().println("The requested action is not permitted");
+					return;
 				}
 				System.out.println("Length of portions" + portions.length);
 				break;

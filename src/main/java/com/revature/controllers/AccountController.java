@@ -77,8 +77,6 @@ public class AccountController {
 
 		AccountDTO a = om.readValue(body, AccountDTO.class);
 
-		HttpSession ses = req.getSession(false); // false - doesn't create session if it doesn't already exist
-
 		AccountDTO act = as.updateAccount(a);
 
 		if (act != null) {
@@ -99,5 +97,16 @@ public class AccountController {
 
 		return as.findById(id);
 	}
+
+	public List<Account> findAcctByUserId(int id) {
+		return as.findAcctByUserId(id);
+	}
+
+	public List<Account> findAcctByStatusId(int id) {
+
+		return as.findAcctByStatusId(id);
+	}
+
+
 
 }

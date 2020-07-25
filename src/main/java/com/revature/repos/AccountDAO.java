@@ -141,27 +141,99 @@ public class AccountDAO implements IAccountDAO {
 		try (Connection conn = ConnectionUtil.getConnection()) {
 			// create DB select statement for users with roles added
 			// No user can have a NULL role
-			String sql = "SELECT * FROM accounts WHERE owner_user_id = "+id+";";
+			String sql = "SELECT * FROM accounts WHERE account_id = "+id+";";
 
 			Statement statement = conn.createStatement();
 			ResultSet result = statement.executeQuery(sql);
 
-			System.out.println("aaa");
 			if (result.next()) {
-				System.out.println("bbb");
 				Account act = new Account();
 				act.setAccountId(result.getInt("account_id"));
 				act.setOwnerUserId(result.getInt("owner_user_id"));
 				act.setBalance(result.getDouble("balance"));
 				act.setStatus(result.getString("status"));
 				act.setType(result.getString("acct_type"));
-				System.out.println("kdkdkddk");
 				return act;
 			}else {
-				System.out.println("ccc");
-
 				return null;
 			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public List<Account> findAcctByUserId(int id) {
+		try (Connection conn = ConnectionUtil.getConnection()) {
+			// create DB select statement for users with roles added
+			// No user can have a NULL role
+			String sql = "SELECT * FROM accounts WHERE owner_user_id = "+id+";";
+
+			Statement statement = conn.createStatement();
+			ResultSet result = statement.executeQuery(sql);
+
+			List<Account> actL = new ArrayList<>();
+			
+			while (result.next()) {
+				Account act = new Account();
+				act.setAccountId(result.getInt("account_id"));
+				act.setOwnerUserId(result.getInt("owner_user_id"));
+				act.setBalance(result.getDouble("balance"));
+				act.setStatus(result.getString("status"));
+				act.setType(result.getString("acct_type"));
+				
+				actL.add(act);
+			}
+			return actL;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public List<Account> findAcctByStatusId(int id) {
+		try (Connection conn = ConnectionUtil.getConnection()) {
+			// create DB select statement for users with roles added
+			// No user can have a NULL role
+			// TODO when the database is fixed to have a table of status's
+			String str;
+			switch (id) {
+			case 1:
+				str = "Pending";
+				break;
+			case 2:
+				str = "Open";
+				break;
+			case 3:
+				str = "Closed";
+				break;
+			case 4:
+			default:
+				str = "Denied";
+			}
+			//String sql = "SELECT * FROM accounts WHERE status_fk = "+id+";";
+			String sql = "SELECT * FROM accounts WHERE status = '"+str+"';";
+
+			Statement statement = conn.createStatement();
+			ResultSet result = statement.executeQuery(sql);
+
+			List<Account> actL = new ArrayList<>();
+			
+			while (result.next()) {
+				Account act = new Account();
+				act.setAccountId(result.getInt("account_id"));
+				act.setOwnerUserId(result.getInt("owner_user_id"));
+				act.setBalance(result.getDouble("balance"));
+				act.setStatus(result.getString("status"));
+				act.setType(result.getString("acct_type"));
+				
+				actL.add(act);
+			}
+			return actL;
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

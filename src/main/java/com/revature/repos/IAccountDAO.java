@@ -14,4 +14,8 @@ public interface IAccountDAO {
 	public List<Account> findAll();
 
 	public Account findById(int id);
+
+	public List<Account> findAcctByUserId(int id);
+
+	public List<Account> findAcctByStatusId(int id);
 }
