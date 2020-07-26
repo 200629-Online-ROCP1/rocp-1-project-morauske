@@ -94,11 +94,27 @@ public class MasterServlet extends HttpServlet {
 			case "accounts":
 				if (!loggedIn) {
 					res.setStatus(400);
-					res.getWriter().println("Creating an account requires an existing session");
+					res.getWriter().println("Request requires an existing session");
 					return;
 				}
-				ac.addAccount(req, res);
-				break;
+				if (portions.length == 1) {
+					ac.addAccount(req, res);
+					break;
+				} else if ((portions.length == 2))  {
+					// Need to add some checking
+					switch (portions[1]) {
+					case "deposit":
+						ac.deposit(req, res);
+						break;
+					case "withdraw":
+						ac.withdraw(req, res);
+						break;
+					case "transfer":
+						ac.transfer(req, res);
+						break;
+						
+					}
+				}
 			}
 
 		} catch (NumberFormatException e) {
